@@ -66,7 +66,7 @@ def main():
                                     .join(calculate_platform, on="region", how="left")\
                                     .withColumn("contribute_ratio", format_number(col("sum_shopee_order") / col("platform_order"), 10)) \
                                     .withColumn("order_threshold", format_number(col("sum_shopee_order")*0.3, 0)) \
-                                    .withColumn("contribution_rank", row_number().over(Window.partitionBy(["region", "shopee_item_id", "shopee_model_id"]).orderBy("contribute_ratio"))) \
+                                    .withColumn("contribution_rank", row_number().over(Window.partitionBy(["region", "shopee_item_id", "shopee_model_id"]).orderBy(col("contribute_ratio").desc()))) \
                                     .where(col("contribution_rank") <= col("order_threshold"))
 
         final_order.groupBy(["region"]) \
