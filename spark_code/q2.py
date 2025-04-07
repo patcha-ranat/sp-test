@@ -37,16 +37,11 @@ def main():
         }
 
         data_pricing_path = "data/pricing_project_dataset.csv"
-        data_platform_number_path = "data/platform_number.csv"
 
         logger.info("Reading CSV Files to Spark DataFrame")
         df_pricing = spark.read.format("csv") \
                                 .options(**read_options) \
                                 .load(data_pricing_path)
-
-        df_platform_order = spark.read.format("csv") \
-                                    .options(**read_options) \
-                                    .load(data_platform_number_path)
 
         logger.info("Cleaning DataFrame")
 

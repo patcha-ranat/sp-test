@@ -80,13 +80,13 @@ def main():
                                                 .agg(count("shopee_model_id").alias("number_of_shopee_model_id"))
 
         # Another intermediate step to find Net Competitiveness according to formula
-        win_comp = intermediate_net_comp.where(col("shopee_model_competitiveness_status") == "Shopee > CPT").withColumnRenamed("number_of_shopee_model_id", "number_of_larger_shopee_model")
-        lose_comp = intermediate_net_comp.where(col("shopee_model_competitiveness_status") == "Shopee < CPT").withColumnRenamed("number_of_shopee_model_id", "number_of_lower_shopee_model")
+        lose_comp = intermediate_net_comp.where(col("shopee_model_competitiveness_status") == "Shopee > CPT").withColumnRenamed("number_of_shopee_model_id", "number_of_larger_shopee_model")
+        win_comp = intermediate_net_comp.where(col("shopee_model_competitiveness_status") == "Shopee < CPT").withColumnRenamed("number_of_shopee_model_id", "number_of_lower_shopee_model")
         total_comp = clean_df_pricing.groupBy(["region"]).agg(count("shopee_model_id").alias("total_shopee_model"))
 
         # Join intermediate results and Apply formula
-        final_net_comp = win_comp.join(lose_comp, on="region", how="left")\
-                                    .join(total_comp, on="region", how="left")\
+        final_net_comp = total_comp.join(lose_comp, on="region", how="left")\
+                                    .join(win_comp, on="region", how="left")\
                                     .select("region", "number_of_larger_shopee_model", "number_of_lower_shopee_model", "total_shopee_model")\
                                     .withColumn("net_competitiveness", format_number((col("number_of_lower_shopee_model") - col("number_of_larger_shopee_model")) / col("total_shopee_model"), 6))\
                                     .select("region", "net_competitiveness")
